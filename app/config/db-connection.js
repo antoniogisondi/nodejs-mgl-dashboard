@@ -1,27 +1,10 @@
-const { MongoClient } = require('mongodb');
-const { EventEmitter } = require('events');
 
-class DbConnection extends EventEmitter {
+const Sequelize = require('sequelize');
+require('dotenv').config()
 
-    mongoClient = new MongoClient(
-        'mongodb://localhost:27017',
-        { useNewUrlParser: true, useUnifiedTopology: true }
-    );
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
+    dialect: 'mysql'
+})
 
-    getConnection() {
-        this.mongoClient.connect((err, mongodb) => {
-            if (err) throw err;
-            this.emit('dbConnection', {
-                db: this.mongoClient.db(/* mettere nome database */)
-            });
-            DbConnection.setInstance(mongodb);
-        })
-    }
-
-    static setInstance(mongodb) {
-        DbConnection.db = mongodb.db(/* mettere nome database */);
-        DbConnection.userCollection = DbConnection.db.collection(/* mettere nome collection */);
-    }
-}
-
-module.exports = DbConnection;
+module.exports = sequelize;
